@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -41,6 +40,10 @@ const Auth = () => {
       const userData = { email };
       localStorage.setItem('userData', JSON.stringify(userData));
       toast.success('Successfully logged in!');
+      
+      // Dispatch custom event to notify other components about authentication change
+      window.dispatchEvent(new Event('authChange'));
+      
       navigate('/');
     } else {
       // Additional validation for signup
@@ -71,6 +74,10 @@ const Auth = () => {
       };
       localStorage.setItem('userData', JSON.stringify(userData));
       toast.success('Account created successfully!');
+      
+      // Dispatch custom event to notify other components about authentication change
+      window.dispatchEvent(new Event('authChange'));
+      
       navigate('/');
     }
   };
