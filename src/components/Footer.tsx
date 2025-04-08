@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4 text-white">VioletAgriSense</h3>
+            <h3 className="text-xl font-bold mb-4 text-white">SmartHarvest</h3>
             <p className="text-violet-200 mb-4">
               Revolutionizing agriculture with smart sensing technology. Monitor your crops efficiently and sustainably.
             </p>
@@ -75,7 +75,7 @@ const Footer = () => {
               </li>
               <li className="flex items-start text-violet-200">
                 <MapPin size={16} className="mr-2 mt-1" />
-                <span>123 AgriTech Road, Farmington, CA 94538</span>
+                <span>Sibiu, Faculty of Science</span>
               </li>
             </ul>
           </div>

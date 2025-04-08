@@ -1,8 +1,8 @@
-
 import React from 'react';
 import Hero from '@/components/Hero';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import Benefits from '@/components/Benefits';
+import Chatbot from '@/components/Chatbot'; 
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ const Index = () => {
               </Button>
             </Link>
             <Link to="/contact">
-              <Button variant="outline" className="text-white border-white hover:bg-violet-700 font-bold px-8 py-3">
+              <Button className="bg-white text-violet-900 hover:bg-violet-100 font-bold px-8 py-3">
                 Contact Sales
               </Button>
             </Link>
@@ -77,6 +77,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+      
+      {/* Add the Chatbot component here */}
+      <Chatbot />
     </div>
   );
 };

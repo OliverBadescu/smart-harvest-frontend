@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ContactForm from '@/components/ContactForm';
 import { MailOpen, Phone, MapPin, Clock } from 'lucide-react';
@@ -31,7 +30,7 @@ const Contact = () => {
           <div className="mb-10 space-y-8">
             <ContactInfoItem icon={<MailOpen size={24} />} title="Email Us">
               <a href="mailto:info@violetagrisense.com" className="hover:text-violet-700">
-                info@violetagrisense.com
+                info@smartharvest.com
               </a>
               <p className="mt-1">We'll respond within 24 hours</p>
             </ContactInfoItem>
@@ -45,9 +44,9 @@ const Contact = () => {
             
             <ContactInfoItem icon={<MapPin size={24} />} title="Visit Us">
               <address className="not-italic">
-                123 AgriTech Road<br />
-                Farmington, CA 94538<br />
-                United States
+                Faculty of Science<br />
+                Lucian Blaga University<br />
+                Dr. Ion Raţiu St 5-7, Sibiu, Romania
               </address>
             </ContactInfoItem>
             
@@ -85,7 +84,7 @@ const Contact = () => {
         <h2 className="text-2xl font-bold text-violet-900 mb-6 text-center">Find Us</h2>
         <div className="rounded-lg overflow-hidden shadow-md h-96">
           <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d100940.14245968207!2d-122.15000896729893!3d37.44999904941219!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb075776f1c3b%3A0xccc17e4da6b38370!2sPalo%20Alto%2C%20CA!5e0!3m2!1sen!2sus!4v1606520282044!5m2!1sen!2sus" 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d698.9073399929662!2d24.15350933022385!3d45.78674269864887!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x474c6791a2f804ad%3A0xc168a4a5e091018b!2sFaculty%20of%20Sciences%2C%20Lucian%20Blaga%20University%20of%20Sibiu!5e0!3m2!1sen!2sus!4v1712612663138!5m2!1sen!2sus"
             width="100%" 
             height="100%" 
             frameBorder="0" 
@@ -93,7 +92,7 @@ const Contact = () => {
             allowFullScreen 
             aria-hidden="false" 
             tabIndex={0}
-            title="Company Location"
+            title="Faculty of Science, Lucian Blaga University of Sibiu"
           ></iframe>
         </div>
       </div>

@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, ShoppingCart, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
+import logo from '../imgs/logo.png';
 import { 
   HoverCard, 
   HoverCardTrigger, 
@@ -20,25 +20,25 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { getTotalItems } = useCart();
   const cartItemCount = getTotalItems();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<any>(null);
 
-  // This useEffect will run on component mount AND whenever the component re-renders
   useEffect(() => {
-    // Check if user is logged in by looking for user data in localStorage
-    const storedUserData = localStorage.getItem('userData');
-    if (storedUserData) {
+   
+    const storedUser = localStorage.getItem('user');
+
+    console.log(storedUser);
+    if (storedUser) {
       try {
-        const parsedUserData = JSON.parse(storedUserData);
+        const parsedUser = JSON.parse(storedUser);
         setIsLoggedIn(true);
-        setUserData(parsedUserData);
+        setUserData(parsedUser);
       } catch (e) {
-        // If there's an error parsing the JSON, clear the localStorage
-        localStorage.removeItem('userData');
+        localStorage.removeItem('user');
         setIsLoggedIn(false);
         setUserData(null);
       }
@@ -47,14 +47,13 @@ const Navbar = () => {
       setUserData(null);
     }
 
-    // Add an event listener for storage changes
     const handleStorageChange = () => {
-      const updatedUserData = localStorage.getItem('userData');
-      if (updatedUserData) {
+      const updatedUser = localStorage.getItem('user');
+      if (updatedUser) {
         try {
-          const parsedUserData = JSON.parse(updatedUserData);
+          const parsedUser = JSON.parse(updatedUser);
           setIsLoggedIn(true);
-          setUserData(parsedUserData);
+          setUserData(parsedUser);
         } catch (e) {
           setIsLoggedIn(false);
           setUserData(null);
@@ -66,10 +65,8 @@ const Navbar = () => {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    
-    // Create a custom event for auth changes within the same window
     window.addEventListener('authChange', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authChange', handleStorageChange);
@@ -77,25 +74,28 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('userData');
+    localStorage.removeItem('user');
     setIsLoggedIn(false);
     setUserData(null);
     toast.success('Successfully logged out');
-    
-    // Dispatch custom event to notify other components
     window.dispatchEvent(new Event('authChange'));
   };
 
+
   const getUserInitials = () => {
-    if (userData && userData.firstName && userData.lastName) {
-      return `${userData.firstName[0]}${userData.lastName[0]}`.toUpperCase();
+    if (userData && userData.fullName) {
+      const names = userData.fullName.split(' ');
+      if (names.length >= 2) {
+        return (names[0][0] + names[1][0]).toUpperCase();
+      } else {
+        return names[0][0].toUpperCase();
+      }
     } else if (userData && userData.email) {
       return userData.email[0].toUpperCase();
     }
     return 'U';
   };
 
-  // Fix for the DOM nesting issue - prevent HoverCard around Link components
   const renderDesktopAuthButton = () => {
     if (isLoggedIn) {
       return (
@@ -113,9 +113,8 @@ const Navbar = () => {
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium">
-                  {userData?.firstName && userData?.lastName
-                    ? `${userData.firstName} ${userData.lastName}`
-                    : userData?.email || 'User'}
+                  
+                  {userData?.fullName || userData?.email || 'User'}
                 </p>
                 <p className="text-xs text-gray-500 truncate">{userData?.email}</p>
               </div>
@@ -174,6 +173,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
+              <img src={logo} alt="logo" className="h-8 w-auto" />
               <span className="text-violet-800 text-xl font-bold relative group">
                 SmartHarvest
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
@@ -207,7 +207,6 @@ const Navbar = () => {
           </div>
           <div className="hidden sm:flex sm:items-center sm:space-x-3">
             {renderDesktopAuthButton()}
-            
             <Link to="/cart">
               <Button variant="ghost" className="text-violet-600 hover:text-violet-900 relative group">
                 <ShoppingCart className="h-5 w-5" />
@@ -232,7 +231,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
+     
       {isMenuOpen && (
         <div className="sm:hidden">
           <div className="pt-2 pb-3 space-y-1">

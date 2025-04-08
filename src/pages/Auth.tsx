@@ -1,84 +1,128 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
-import { Form, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { login, register, getByToken } from '@/services/authService';
 
-const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  
-  // Shipping information states
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [zipCode, setZipCode] = useState('');
-  const [country, setCountry] = useState('');
-  const [phone, setPhone] = useState('');
-  
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+interface RegisterRequest {
+  email: string;
+  password: string;
+  fullName: string;
+  address: string;
+  phone: string;
+  country: string;
+}
+
+const Auth: React.FC = () => {
+  const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const [fullName, setFullName] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
+  const [country, setCountry] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    
+
     if (!isLogin && password !== confirmPassword) {
       toast.error('Passwords do not match!');
       return;
     }
-    
-    // Mock authentication for now
-    if (isLogin) {
-      // Login logic - store minimal user info
-      const userData = { email };
-      localStorage.setItem('userData', JSON.stringify(userData));
-      toast.success('Successfully logged in!');
-      
-      // Dispatch custom event to notify other components about authentication change
-      window.dispatchEvent(new Event('authChange'));
-      
-      navigate('/');
-    } else {
-      // Additional validation for signup
-      if (!isLogin) {
-        if (!firstName || !lastName) {
-          toast.error('Please enter your name');
+
+    try {
+      setIsLoading(true);
+
+      if (isLogin) {
+        const loginRequest: LoginRequest = { email, password };
+        const loginResponse = await login(loginRequest);
+
+        console.log(loginResponse);
+
+        if (loginResponse.success && loginResponse.body) {
+
+          const tokenResponse = await getByToken(loginResponse.body.jwtToken);
+          
+          localStorage.setItem('user', JSON.stringify(tokenResponse.body));
+
+
+          console.log(localStorage.getItem('user'));
+
+          toast.success('Successfully logged in!');
+        } else {
+          toast.error(loginResponse.message || 'Login failed');
+          setIsLoading(false);
           return;
         }
-        if (!address || !city || !state || !zipCode || !country) {
+      } else {
+        if (!fullName) {
+          toast.error('Please enter your name');
+          setIsLoading(false);
+          return;
+        }
+        if (!address || !country) {
           toast.error('Please complete all shipping information fields');
+          setIsLoading(false);
+          return;
+        }
+
+        const registerData: RegisterRequest = {
+          email,
+          password,
+          fullName,
+          address,
+          phone,
+          country
+        };
+
+        const registerResponse = await register(registerData);
+
+        if (registerResponse.success && registerResponse.body) {
+        
+          const tokenResponse = await getByToken(registerResponse.body.jwtToken);
+          
+          localStorage.setItem('user', JSON.stringify(tokenResponse.body));
+
+          toast.success('Account created successfully!');
+        } else {
+          toast.error(registerResponse.message || 'Registration failed');
+          setIsLoading(false);
           return;
         }
       }
-      
-      // Signup logic - store all user data
-      const userData = {
-        email,
-        firstName,
-        lastName,
-        shipping: {
-          address,
-          city,
-          state,
-          zipCode,
-          country,
-          phone
-        }
-      };
-      localStorage.setItem('userData', JSON.stringify(userData));
-      toast.success('Account created successfully!');
-      
-      // Dispatch custom event to notify other components about authentication change
+
+
       window.dispatchEvent(new Event('authChange'));
-      
       navigate('/');
+    } catch (error: any) {
+      console.error('Authentication error:', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        (isLogin ? 'Login failed. Please check your credentials.' : 'Registration failed. Please try again.');
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,6 +159,7 @@ const Auth = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -129,17 +174,19 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
                 <button 
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
-            
+
             {!isLogin && (
               <>
                 <div className="space-y-2">
@@ -153,42 +200,28 @@ const Auth = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
-                
+
                 <div className="pt-4 border-t">
                   <h3 className="text-md font-medium text-gray-700 mb-3">Shipping Information</h3>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                        First Name
-                      </label>
-                      <Input
-                        id="firstName"
-                        type="text"
-                        placeholder="John"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-                        Last Name
-                      </label>
-                      <Input
-                        id="lastName"
-                        type="text"
-                        placeholder="Doe"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                      />
-                    </div>
+
+                  <div className="space-y-2 mt-3">
+                    <label htmlFor="fullName" className="text-sm font-medium text-gray-700">
+                      Full name
+                    </label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="John Doe"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
                   </div>
-                  
+
                   <div className="space-y-2 mt-3">
                     <label htmlFor="address" className="text-sm font-medium text-gray-700">
                       Address
@@ -200,69 +233,25 @@ const Auth = () => {
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       required
+                      disabled={isLoading}
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-3 mt-3">
-                    <div className="space-y-2">
-                      <label htmlFor="city" className="text-sm font-medium text-gray-700">
-                        City
-                      </label>
-                      <Input
-                        id="city"
-                        type="text"
-                        placeholder="New York"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label htmlFor="state" className="text-sm font-medium text-gray-700">
-                        State/Province
-                      </label>
-                      <Input
-                        id="state"
-                        type="text"
-                        placeholder="NY"
-                        value={state}
-                        onChange={(e) => setState(e.target.value)}
-                        required
-                      />
-                    </div>
+
+                  <div className="space-y-2 mt-3">
+                    <label htmlFor="country" className="text-sm font-medium text-gray-700">
+                      Country
+                    </label>
+                    <Input
+                      id="country"
+                      type="text"
+                      placeholder="Your country"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-3 mt-3">
-                    <div className="space-y-2">
-                      <label htmlFor="zipCode" className="text-sm font-medium text-gray-700">
-                        Zip/Postal Code
-                      </label>
-                      <Input
-                        id="zipCode"
-                        type="text"
-                        placeholder="10001"
-                        value={zipCode}
-                        onChange={(e) => setZipCode(e.target.value)}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label htmlFor="country" className="text-sm font-medium text-gray-700">
-                        Country
-                      </label>
-                      <Input
-                        id="country"
-                        type="text"
-                        placeholder="United States"
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
+
                   <div className="space-y-2 mt-3">
                     <label htmlFor="phone" className="text-sm font-medium text-gray-700">
                       Phone Number
@@ -274,14 +263,24 @@ const Auth = () => {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
               </>
             )}
-            
-            <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-700">
-              {isLogin ? (
+
+            <Button 
+              type="submit" 
+              className="w-full bg-violet-600 hover:bg-violet-700"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  {isLogin ? 'Signing In...' : 'Creating Account...'}
+                </div>
+              ) : isLogin ? (
                 <>
                   <LogIn className="mr-2 h-4 w-4" /> Sign In
                 </>
@@ -306,6 +305,7 @@ const Auth = () => {
             <button 
               onClick={() => setIsLogin(!isLogin)} 
               className="ml-1 text-violet-600 hover:text-violet-800 font-medium"
+              disabled={isLoading}
             >
               {isLogin ? 'Sign up' : 'Sign in'}
             </button>

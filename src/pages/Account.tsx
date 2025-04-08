@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,35 +7,63 @@ import { toast } from 'sonner';
 import { User, Mail, MapPin, Phone, Edit, CheckCircle } from 'lucide-react';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 
-const Account = () => {
-  // Mock user data - in a real app, this would come from auth context
-  const [userData, setUserData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    address: '123 Farm Road, Agriville, CA 94123',
-    phone: '(555) 123-4567',
-    orderHistory: [
-      { id: 'ORD-2024001', date: '2024-04-01', total: 249.99, status: 'Delivered' },
-      { id: 'ORD-2024002', date: '2024-03-15', total: 129.50, status: 'Shipped' },
-    ]
-  });
-  
+interface UserData {
+  fullName: string;
+  email: string;
+  address: string;
+  phone: string;
+  // Optionally include orderHistory if provided
+  orderHistory?: Array<{
+    id: string;
+    date: string;
+    total: number;
+    status: string;
+  }>;
+}
+
+const Account: React.FC = () => {
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState(userData);
-  
+  // Use a separate state for edited data
+  const [editedData, setEditedData] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    // Read the authenticated user's information from localStorage using the new key "user"
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const parsedUser: UserData = JSON.parse(storedUser);
+        setUserData(parsedUser);
+        setEditedData(parsedUser);
+      } catch (error) {
+        localStorage.removeItem('user');
+        setUserData(null);
+        setEditedData(null);
+      }
+    }
+  }, []);
+
   const handleEditToggle = () => {
-    if (isEditing) {
+    if (isEditing && editedData) {
+      // Here you would usually call an update API endpoint.
+      // For now, we just update local state and localStorage.
       setUserData(editedData);
+      localStorage.setItem('user', JSON.stringify(editedData));
       toast.success('Profile updated successfully!');
     }
     setIsEditing(!isEditing);
   };
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!editedData) return;
     const { name, value } = e.target;
-    setEditedData(prev => ({ ...prev, [name]: value }));
+    setEditedData(prev => prev ? ({ ...prev, [name]: value }) : null);
   };
-  
+
+  if (!userData) {
+    return <div className="container mx-auto py-10 px-4">Loading...</div>;
+  }
+
   return (
     <div className="container mx-auto py-10 px-4 md:px-6">
       <h1 className="text-3xl font-bold mb-8 text-violet-800 relative inline-block group">
@@ -51,7 +78,7 @@ const Account = () => {
               <CardTitle className="flex items-center justify-between">
                 <HoverCard>
                   <HoverCardTrigger asChild>
-                    <span className="text-xl text-violet-800 hover:text-violet-600 transition-colors duration-300 cursor-pointer">
+                    <span className="text-xl text-violet-800 hover:text-violet-600 transition-colors duration-300 cursor-pointer relative inline-block group">
                       Personal Information
                     </span>
                   </HoverCardTrigger>
@@ -76,20 +103,20 @@ const Account = () => {
               <div className="relative group">
                 <div className="flex items-center space-x-2 mb-1">
                   <User className="h-4 w-4 text-violet-600" />
-                  <Label htmlFor="name" className="font-medium text-violet-800 group-hover:text-violet-600 transition-colors duration-300">
+                  <Label htmlFor="fullName" className="font-medium text-violet-800 group-hover:text-violet-600 transition-colors duration-300">
                     Full Name
                   </Label>
                 </div>
                 {isEditing ? (
                   <Input 
-                    id="name" 
-                    name="name" 
-                    value={editedData.name} 
+                    id="fullName" 
+                    name="fullName" 
+                    value={editedData?.fullName || ''} 
                     onChange={handleChange} 
                     className="border-violet-200 focus:border-violet-500"
                   />
                 ) : (
-                  <p className="text-gray-700 pl-6">{userData.name}</p>
+                  <p className="text-gray-700 pl-6">{userData.fullName}</p>
                 )}
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
               </div>
@@ -106,7 +133,7 @@ const Account = () => {
                     id="email" 
                     name="email" 
                     type="email" 
-                    value={editedData.email} 
+                    value={editedData?.email || ''} 
                     onChange={handleChange} 
                     className="border-violet-200 focus:border-violet-500"
                   />
@@ -127,7 +154,7 @@ const Account = () => {
                   <Input 
                     id="address" 
                     name="address" 
-                    value={editedData.address} 
+                    value={editedData?.address || ''} 
                     onChange={handleChange} 
                     className="border-violet-200 focus:border-violet-500"
                   />
@@ -148,7 +175,7 @@ const Account = () => {
                   <Input 
                     id="phone" 
                     name="phone" 
-                    value={editedData.phone} 
+                    value={editedData?.phone || ''} 
                     onChange={handleChange} 
                     className="border-violet-200 focus:border-violet-500"
                   />
@@ -181,7 +208,7 @@ const Account = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {userData.orderHistory.map((order) => (
+                {userData.orderHistory && userData.orderHistory.map((order) => (
                   <div 
                     key={order.id} 
                     className="p-4 border border-violet-100 rounded-md hover:bg-violet-50 transition-colors duration-300 relative group"
