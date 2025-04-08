@@ -14,6 +14,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Cart from "./pages/Cart";
 import Auth from "./pages/Auth";
+import Account from "./pages/Account";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/account" element={<Account />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
