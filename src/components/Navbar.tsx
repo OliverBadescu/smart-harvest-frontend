@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, ShoppingCart, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,13 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { getTotalItems } = useCart();
   const cartItemCount = getTotalItems();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in by looking for user data in localStorage
+    const userData = localStorage.getItem('userData');
+    setIsLoggedIn(!!userData);
+  }, []);
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -37,7 +44,10 @@ const Navbar = () => {
               <HoverCard>
                 <HoverCardTrigger asChild>
                   <Link to="/" className="text-violet-600 hover:text-violet-900 px-3 py-2 font-medium relative group">
-                    Home
+                    <span className="relative overflow-hidden inline-block">
+                      <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">Home</span>
+                      <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">Home</span>
+                    </span>
                     <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                   </Link>
                 </HoverCardTrigger>
@@ -49,7 +59,10 @@ const Navbar = () => {
               <HoverCard>
                 <HoverCardTrigger asChild>
                   <Link to="/products" className="text-violet-600 hover:text-violet-900 px-3 py-2 font-medium relative group">
-                    Products
+                    <span className="relative overflow-hidden inline-block">
+                      <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">Products</span>
+                      <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">Products</span>
+                    </span>
                     <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                   </Link>
                 </HoverCardTrigger>
@@ -61,7 +74,10 @@ const Navbar = () => {
               <HoverCard>
                 <HoverCardTrigger asChild>
                   <Link to="/contact" className="text-violet-600 hover:text-violet-900 px-3 py-2 font-medium relative group">
-                    Contact
+                    <span className="relative overflow-hidden inline-block">
+                      <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">Contact</span>
+                      <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">Contact</span>
+                    </span>
                     <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                   </Link>
                 </HoverCardTrigger>
@@ -72,33 +88,42 @@ const Navbar = () => {
             </div>
           </div>
           <div className="hidden sm:flex sm:items-center sm:space-x-3">
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <Link to="/account">
-                  <Button variant="ghost" className="text-violet-600 hover:text-violet-900 relative group">
-                    <User className="h-5 w-5" />
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                  </Button>
-                </Link>
-              </HoverCardTrigger>
-              <HoverCardContent className="bg-violet-50 border-violet-200">
-                <p className="text-sm text-violet-700">View your account</p>
-              </HoverCardContent>
-            </HoverCard>
-            
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <Link to="/auth">
-                  <Button variant="ghost" className="text-violet-600 hover:text-violet-900 relative group">
-                    Login
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                  </Button>
-                </Link>
-              </HoverCardTrigger>
-              <HoverCardContent className="bg-violet-50 border-violet-200">
-                <p className="text-sm text-violet-700">Login or sign up</p>
-              </HoverCardContent>
-            </HoverCard>
+            {isLoggedIn ? (
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Link to="/account">
+                    <Button variant="ghost" className="text-violet-600 hover:text-violet-900 relative group">
+                      <User className="h-5 w-5 mr-1" />
+                      <span className="relative overflow-hidden inline-block">
+                        <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">Account</span>
+                        <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">Account</span>
+                      </span>
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                    </Button>
+                  </Link>
+                </HoverCardTrigger>
+                <HoverCardContent className="bg-violet-50 border-violet-200">
+                  <p className="text-sm text-violet-700">View your account</p>
+                </HoverCardContent>
+              </HoverCard>
+            ) : (
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Link to="/auth">
+                    <Button variant="ghost" className="text-violet-600 hover:text-violet-900 relative group">
+                      <span className="relative overflow-hidden inline-block">
+                        <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">Login</span>
+                        <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">Login</span>
+                      </span>
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                    </Button>
+                  </Link>
+                </HoverCardTrigger>
+                <HoverCardContent className="bg-violet-50 border-violet-200">
+                  <p className="text-sm text-violet-700">Login or sign up</p>
+                </HoverCardContent>
+              </HoverCard>
+            )}
             
             <HoverCard>
               <HoverCardTrigger asChild>
@@ -156,20 +181,23 @@ const Navbar = () => {
             >
               Contact
             </Link>
-            <Link
-              to="/account"
-              className="block px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              My Account
-            </Link>
-            <Link
-              to="/auth"
-              className="block px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Login / Sign Up
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                to="/account"
+                className="block px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                My Account
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="block px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Login / Sign Up
+              </Link>
+            )}
             <Link
               to="/cart"
               className="block px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100 flex items-center"

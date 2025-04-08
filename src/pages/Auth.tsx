@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
+import { Form, FormField, FormItem, FormLabel } from '@/components/ui/form';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,6 +14,17 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Shipping information states
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [country, setCountry] = useState('');
+  const [phone, setPhone] = useState('');
+  
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,11 +37,39 @@ const Auth = () => {
     
     // Mock authentication for now
     if (isLogin) {
-      // Login logic would go here
+      // Login logic - store minimal user info
+      const userData = { email };
+      localStorage.setItem('userData', JSON.stringify(userData));
       toast.success('Successfully logged in!');
       navigate('/');
     } else {
-      // Signup logic would go here
+      // Additional validation for signup
+      if (!isLogin) {
+        if (!firstName || !lastName) {
+          toast.error('Please enter your name');
+          return;
+        }
+        if (!address || !city || !state || !zipCode || !country) {
+          toast.error('Please complete all shipping information fields');
+          return;
+        }
+      }
+      
+      // Signup logic - store all user data
+      const userData = {
+        email,
+        firstName,
+        lastName,
+        shipping: {
+          address,
+          city,
+          state,
+          zipCode,
+          country,
+          phone
+        }
+      };
+      localStorage.setItem('userData', JSON.stringify(userData));
       toast.success('Account created successfully!');
       navigate('/');
     }
@@ -40,7 +80,14 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center text-violet-900">
-            {isLogin ? 'Sign in to SmartHarvest' : 'Create a SmartHarvest account'}
+            <span className="relative group overflow-hidden inline-block">
+              <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">
+                {isLogin ? 'Sign in to SmartHarvest' : 'Create a SmartHarvest account'}
+              </span>
+              <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">
+                {isLogin ? 'Welcome back!' : 'Join our community'}
+              </span>
+            </span>
           </CardTitle>
           <CardDescription className="text-center">
             {isLogin 
@@ -87,19 +134,143 @@ const Auth = () => {
             </div>
             
             {!isLogin && (
-              <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
-                  Confirm Password
-                </label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
+              <>
+                <div className="space-y-2">
+                  <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+                    Confirm Password
+                  </label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <h3 className="text-md font-medium text-gray-700 mb-3">Shipping Information</h3>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                        First Name
+                      </label>
+                      <Input
+                        id="firstName"
+                        type="text"
+                        placeholder="John"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                        Last Name
+                      </label>
+                      <Input
+                        id="lastName"
+                        type="text"
+                        placeholder="Doe"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mt-3">
+                    <label htmlFor="address" className="text-sm font-medium text-gray-700">
+                      Address
+                    </label>
+                    <Input
+                      id="address"
+                      type="text"
+                      placeholder="123 Main St"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mt-3">
+                    <div className="space-y-2">
+                      <label htmlFor="city" className="text-sm font-medium text-gray-700">
+                        City
+                      </label>
+                      <Input
+                        id="city"
+                        type="text"
+                        placeholder="New York"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label htmlFor="state" className="text-sm font-medium text-gray-700">
+                        State/Province
+                      </label>
+                      <Input
+                        id="state"
+                        type="text"
+                        placeholder="NY"
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mt-3">
+                    <div className="space-y-2">
+                      <label htmlFor="zipCode" className="text-sm font-medium text-gray-700">
+                        Zip/Postal Code
+                      </label>
+                      <Input
+                        id="zipCode"
+                        type="text"
+                        placeholder="10001"
+                        value={zipCode}
+                        onChange={(e) => setZipCode(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label htmlFor="country" className="text-sm font-medium text-gray-700">
+                        Country
+                      </label>
+                      <Input
+                        id="country"
+                        type="text"
+                        placeholder="United States"
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mt-3">
+                    <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                      Phone Number
+                    </label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+1 (555) 123-4567"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              </>
             )}
             
             <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-700">
@@ -117,7 +288,14 @@ const Auth = () => {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center text-gray-600">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
+            <span className="relative group inline-block overflow-hidden">
+              <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">
+                {isLogin ? "Don't have an account?" : "Already have an account?"}
+              </span>
+              <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">
+                {isLogin ? "Sign up now" : "Back to login"}
+              </span>
+            </span>
             <button 
               onClick={() => setIsLogin(!isLogin)} 
               className="ml-1 text-violet-600 hover:text-violet-800 font-medium"

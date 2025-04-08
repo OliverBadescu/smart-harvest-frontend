@@ -1,0 +1,65 @@
+
+/* Text slide animation */
+.hover-slide-text {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.hover-slide-text span {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.hover-slide-text .text-original {
+  transform: translateY(0);
+}
+
+.hover-slide-text .text-hover {
+  position: absolute;
+  left: 0;
+  transform: translateY(100%);
+}
+
+.hover-slide-text:hover .text-original {
+  transform: translateY(-100%);
+}
+
+.hover-slide-text:hover .text-hover {
+  transform: translateY(0);
+}
+
+/* Text scale animation */
+.hover-scale-text {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale-text:hover {
+  transform: scale(1.05);
+}
+
+/* Text color fade animation */
+.hover-color-fade {
+  transition: color 0.3s ease;
+}
+
+.text-gradient-hover {
+  background-size: 100%;
+  background-repeat: repeat;
+  display: inline;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -moz-background-clip: text;
+  -moz-text-fill-color: transparent;
+  background-color: #6d28d9;
+  background-image: linear-gradient(90deg, #6d28d9, #a78bfa);
+  transition: background-size 0.3s ease;
+  background-size: 0% 100%;
+  background-position: 0% 100%;
+}
+
+.text-gradient-hover:hover {
+  background-size: 100% 100%;
+}
+
+/* Add to main.tsx to import these styles */
