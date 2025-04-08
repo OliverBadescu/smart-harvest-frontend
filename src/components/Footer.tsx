@@ -82,7 +82,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-violet-800 mt-8 pt-8 text-center text-violet-300">
-          <p>&copy; {new Date().getFullYear()} VioletAgriSense. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SmartHarvest. All rights reserved.</p>
         </div>
       </div>
     </footer>
