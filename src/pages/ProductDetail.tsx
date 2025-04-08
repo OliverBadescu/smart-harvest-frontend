@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ShoppingCart, Check, Award, BarChart, Droplet } from 'lucide-react';
 import { toast } from 'sonner';
+import ProductCard from '@/components/ProductCard';
 
 // Import the Product type
 import { Product } from '@/components/ProductCard';
@@ -130,29 +131,30 @@ const productDetails: Record<number, any> = {
       "API integration with farm management software"
     ],
     relatedProducts: [8, 3, 1]
-  },
-  // Default details for other products
-  default: {
-    fullDescription: "This advanced agricultural sensor is designed to help farmers optimize their operations through precise data collection and analysis. With state-of-the-art technology and rugged construction suitable for field conditions, this sensor provides reliable measurements and insights for improved decision-making.",
-    specifications: [
-      { label: "Connectivity", value: "Wireless (4G/WiFi/Bluetooth)" },
-      { label: "Power Source", value: "Rechargeable battery/Solar" },
-      { label: "Weather Resistance", value: "IP65 or higher" },
-      { label: "Data Storage", value: "Cloud-based with local backup" },
-      { label: "Warranty", value: "2 years" }
-    ],
-    features: [
-      "Real-time monitoring",
-      "Wireless connectivity",
-      "Mobile app integration",
-      "Weather-resistant design",
-      "Long battery life",
-      "Easy installation",
-      "Cloud data storage",
-      "Comprehensive analytics"
-    ],
-    relatedProducts: [1, 2, 3, 4]
   }
+};
+
+// Default details object for fallback
+const defaultDetails = {
+  fullDescription: "This advanced agricultural sensor is designed to help farmers optimize their operations through precise data collection and analysis. With state-of-the-art technology and rugged construction suitable for field conditions, this sensor provides reliable measurements and insights for improved decision-making.",
+  specifications: [
+    { label: "Connectivity", value: "Wireless (4G/WiFi/Bluetooth)" },
+    { label: "Power Source", value: "Rechargeable battery/Solar" },
+    { label: "Weather Resistance", value: "IP65 or higher" },
+    { label: "Data Storage", value: "Cloud-based with local backup" },
+    { label: "Warranty", value: "2 years" }
+  ],
+  features: [
+    "Real-time monitoring",
+    "Wireless connectivity",
+    "Mobile app integration",
+    "Weather-resistant design",
+    "Long battery life",
+    "Easy installation",
+    "Cloud data storage",
+    "Comprehensive analytics"
+  ],
+  relatedProducts: [1, 2, 3, 4]
 };
 
 const ProductDetail = () => {
@@ -176,7 +178,7 @@ const ProductDetail = () => {
   }
   
   // Get product details or use default if not available
-  const details = productDetails[productId] || productDetails.default;
+  const details = productDetails[productId] || defaultDetails;
   
   // Get related products
   const relatedProductsList = details.relatedProducts
