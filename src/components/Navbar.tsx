@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingCart, User } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { 
@@ -9,18 +9,52 @@ import {
   HoverCardTrigger, 
   HoverCardContent 
 } from '@/components/ui/hover-card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { toast } from 'sonner';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { getTotalItems } = useCart();
   const cartItemCount = getTotalItems();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
     // Check if user is logged in by looking for user data in localStorage
-    const userData = localStorage.getItem('userData');
-    setIsLoggedIn(!!userData);
+    const storedUserData = localStorage.getItem('userData');
+    if (storedUserData) {
+      const parsedUserData = JSON.parse(storedUserData);
+      setIsLoggedIn(true);
+      setUserData(parsedUserData);
+    } else {
+      setIsLoggedIn(false);
+      setUserData(null);
+    }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('userData');
+    setIsLoggedIn(false);
+    setUserData(null);
+    toast.success('Successfully logged out');
+  };
+
+  const getUserInitials = () => {
+    if (userData && userData.firstName && userData.lastName) {
+      return `${userData.firstName[0]}${userData.lastName[0]}`.toUpperCase();
+    } else if (userData && userData.email) {
+      return userData.email[0].toUpperCase();
+    }
+    return 'U';
+  };
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -89,23 +123,55 @@ const Navbar = () => {
           </div>
           <div className="hidden sm:flex sm:items-center sm:space-x-3">
             {isLoggedIn ? (
-              <HoverCard>
-                <HoverCardTrigger asChild>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative group">
+                    <Avatar className="h-8 w-8 border-2 border-violet-200 group-hover:border-violet-500 transition-colors">
+                      <AvatarFallback className="bg-violet-100 text-violet-800 group-hover:bg-violet-200 transition-colors">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">
+                        {userData?.firstName && userData?.lastName
+                          ? `${userData.firstName} ${userData.lastName}`
+                          : userData?.email || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{userData?.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                   <Link to="/account">
-                    <Button variant="ghost" className="text-violet-600 hover:text-violet-900 relative group">
-                      <User className="h-5 w-5 mr-1" />
+                    <DropdownMenuItem className="cursor-pointer relative group">
+                      <User className="mr-2 h-4 w-4" />
                       <span className="relative overflow-hidden inline-block">
-                        <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">Account</span>
-                        <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">Account</span>
+                        <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">
+                          My Account
+                        </span>
+                        <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">
+                          View Profile
+                        </span>
                       </span>
-                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-violet-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                    </Button>
+                    </DropdownMenuItem>
                   </Link>
-                </HoverCardTrigger>
-                <HoverCardContent className="bg-violet-50 border-violet-200">
-                  <p className="text-sm text-violet-700">View your account</p>
-                </HoverCardContent>
-              </HoverCard>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer relative group">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span className="relative overflow-hidden inline-block">
+                      <span className="inline-block transform transition-transform duration-300 translate-y-0 group-hover:-translate-y-full">
+                        Sign Out
+                      </span>
+                      <span className="absolute left-0 inline-block transform transition-transform duration-300 translate-y-full group-hover:translate-y-0">
+                        Log Out
+                      </span>
+                    </span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <HoverCard>
                 <HoverCardTrigger asChild>
@@ -182,13 +248,24 @@ const Navbar = () => {
               Contact
             </Link>
             {isLoggedIn ? (
-              <Link
-                to="/account"
-                className="block px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                My Account
-              </Link>
+              <>
+                <Link
+                  to="/account"
+                  className="block px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  My Account
+                </Link>
+                <button
+                  className="block w-full text-left px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100"
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  Sign Out
+                </button>
+              </>
             ) : (
               <Link
                 to="/auth"
