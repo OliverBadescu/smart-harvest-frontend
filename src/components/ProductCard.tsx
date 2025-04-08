@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
 
 export interface Product {
   id: number;
@@ -18,6 +19,14 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-violet-100 hover:shadow-lg transition-shadow duration-300">
       <div className="h-48 overflow-hidden">
@@ -41,7 +50,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 Details
               </Button>
             </Link>
-            <Button size="sm" className="bg-violet-600 hover:bg-violet-700">
+            <Button 
+              size="sm" 
+              className="bg-violet-600 hover:bg-violet-700"
+              onClick={handleAddToCart}
+            >
               <ShoppingCart className="h-4 w-4" />
             </Button>
           </div>

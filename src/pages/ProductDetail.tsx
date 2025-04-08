@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ShoppingCart, Check, Award, BarChart, Droplet } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductCard from '@/components/ProductCard';
+import { useCart } from '@/contexts/CartContext';
 
 // Import the Product type
 import { Product } from '@/components/ProductCard';
@@ -105,7 +105,6 @@ const productDetails: Record<number, any> = {
     ],
     relatedProducts: [5, 4, 6]
   },
-  // Add similar details for other products as needed
   2: {
     fullDescription: "The Weather Station Plus is a comprehensive weather monitoring system designed specifically for agricultural applications. It combines precision sensors for temperature, humidity, rainfall, wind speed and direction, solar radiation, and barometric pressure in one integrated unit. The system provides accurate local weather data to help farmers make informed decisions about planting, irrigation, pest management, and harvesting.",
     specifications: [
@@ -160,6 +159,7 @@ const defaultDetails = {
 const ProductDetail = () => {
   const { id } = useParams();
   const productId = parseInt(id || '1');
+  const { addToCart } = useCart();
   
   const product = allProducts.find(p => p.id === productId);
   
@@ -185,8 +185,8 @@ const ProductDetail = () => {
     .map((id: number) => allProducts.find(p => p.id === id))
     .filter(Boolean);
 
-  const addToCart = () => {
-    toast.success(`${product.name} added to your cart!`);
+  const handleAddToCart = () => {
+    addToCart(product);
   };
 
   return (
@@ -243,7 +243,7 @@ const ProductDetail = () => {
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
               <Button 
                 className="bg-violet-700 hover:bg-violet-800 flex-1 flex items-center justify-center"
-                onClick={addToCart}
+                onClick={handleAddToCart}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
               </Button>

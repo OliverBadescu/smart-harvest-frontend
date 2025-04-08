@@ -1,11 +1,14 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingCart } from 'lucide-react';
+import { Menu, X, ShoppingCart, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCart } from '@/contexts/CartContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { getTotalItems } = useCart();
+  const cartItemCount = getTotalItems();
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -13,7 +16,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-violet-800 text-xl font-bold">VioletAgriSense</span>
+              <span className="text-violet-800 text-xl font-bold">SmartHarvest</span>
             </Link>
             <div className="hidden sm:ml-10 sm:flex sm:space-x-8">
               <Link to="/" className="text-violet-600 hover:text-violet-900 px-3 py-2 font-medium">
@@ -27,13 +30,22 @@ const Navbar = () => {
               </Link>
             </div>
           </div>
-          <div className="hidden sm:flex sm:items-center">
-            <Button variant="ghost" className="text-violet-600 hover:text-violet-900 relative">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-violet-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                0
-              </span>
-            </Button>
+          <div className="hidden sm:flex sm:items-center sm:space-x-3">
+            <Link to="/auth">
+              <Button variant="ghost" className="text-violet-600 hover:text-violet-900">
+                <User className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Link to="/cart">
+              <Button variant="ghost" className="text-violet-600 hover:text-violet-900 relative">
+                <ShoppingCart className="h-5 w-5" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-violet-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
           </div>
           <div className="flex items-center sm:hidden">
             <button
@@ -72,14 +84,25 @@ const Navbar = () => {
             >
               Contact
             </Link>
-            <div className="px-3 py-2">
-              <Button variant="ghost" className="text-violet-600 hover:text-violet-900 relative">
-                <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-violet-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  0
+            <Link
+              to="/auth"
+              className="block px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Login / Sign Up
+            </Link>
+            <Link
+              to="/cart"
+              className="block px-3 py-2 text-base font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100 flex items-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Cart
+              {cartItemCount > 0 && (
+                <span className="ml-2 bg-violet-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
                 </span>
-              </Button>
-            </div>
+              )}
+            </Link>
           </div>
         </div>
       )}
