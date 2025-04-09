@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-// The main Chatbot component
+
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -14,24 +14,21 @@ const Chatbot = () => {
     setIsOpen(!isOpen);
   };
 
-  // Auto-scroll to the latest message
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
-  // Handle message submission
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!inputMessage.trim()) return;
 
-    // Add user message
     setMessages([...messages, { text: inputMessage, isBot: false }]);
     setInputMessage('');
     setIsLoading(true);
 
-    // Simulate bot response delay
     setTimeout(() => {
       const botResponse = generateResponse(inputMessage);
       setMessages(prev => [...prev, { text: botResponse, isBot: true }]);
@@ -39,11 +36,9 @@ const Chatbot = () => {
     }, 1000);
   };
 
-  // Simple rule-based response generator
   const generateResponse = (userInput) => {
     const input = userInput.toLowerCase();
-    
-    // FAQ responses
+
     if (input.includes('sensor') && (input.includes('price') || input.includes('cost'))) {
       return "Our sensor prices range from $99 for basic soil moisture sensors to $499 for our advanced weather stations. You can view detailed pricing on our Products page.";
     }
@@ -68,7 +63,6 @@ const Chatbot = () => {
     else if (input.includes('contact') || input.includes('support') || input.includes('help')) {
       return "You can reach our support team at support@agrisensors.com or call us at 1-800-AGR-SENS during business hours (Mon-Fri, 9AM-5PM EST).";
     }
-    // General responses
     else if (input.includes('hello') || input.includes('hi') || input.includes('hey')) {
       return "Hello! How can I help with your agricultural sensing needs today?";
     }

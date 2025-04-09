@@ -66,12 +66,12 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-white">Contact Us</h4>
             <ul className="space-y-2">
               <li className="flex items-center text-violet-200">
-                <Phone size={16} className="mr-2" />
+                <Phone size={16} className="mr-2" />  
                 <span>+1 (555) 123-4567</span>
               </li>
               <li className="flex items-center text-violet-200">
                 <Mail size={16} className="mr-2" />
-                <span>info@violetagrisense.com</span>
+                <span>info@smartharvest.com</span>
               </li>
               <li className="flex items-start text-violet-200">
                 <MapPin size={16} className="mr-2 mt-1" />
